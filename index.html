@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  class="bg-gradient-to-br from-zinc-900 via-black to-zinc-950 text-white"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AniFinder 🎌</title>
+    <link rel="stylesheet" href="src/output.css" />
+  </head>
+
+  <body class="flex flex-col min-h-screen">
+    <header
+      class="flex flex-row justify-between items-center bg-zinc-800 shadow-lg py-6"
+    >
+      <div class="ml-2">
+        <h1 class="text-3xl font-bold decoration-red-500 text-green-700">
+          AniFinder🎌
+        </h1>
+      </div>
+      <p class="text-xs font-serif text-zinc-400">
+        Your favourite<br />anime plug
+      </p>
+    </header>
+    <main class="flex-grow flex flex-col p-4 items-center">
+      <!--search bar div-->
+      <div class="pb-4">
+        <form id="anime-form">
+          <input
+            type="text"
+            placeholder="Search anime (e.g. Naruto, Bleach...)"
+          />
+          <button type="submit">🔍 Search</button>
+        </form>
+      </div>
+      <!--suggested anime div-->
+      <div id="suggested-anime">
+        <h2>🔥🔥Trending🔥🔥</h2>
+      </div>
+    </main>
+    <footer class="bg-zinc-800 py-6 text-center text-sm text-zinc-400">
+      Built by CreeksonJoseph 💻 | Powered by Jikan API
+    </footer>
+    <script src="/src/script.js"></script>
+  </body>
+</html>
