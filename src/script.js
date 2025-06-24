@@ -27,6 +27,7 @@ form.addEventListener("submit", (e) => {
   fetchSingleAnime(query);
   searchInput.value = "";
 });
+
 //function declarations
 
 // Display grid of anime cards
@@ -97,10 +98,11 @@ function displaySingleAnime(anime) {
       <p><strong>Episodes:</strong> ${anime.episodes ?? "?"}</p>
       <p><strong>Rating:</strong> ${anime.score ?? "N/A"}</p>
       ${
-        anime.trailer?.url
-          ? `<a href="${anime.trailer.url}" target="_blank" class="text-green-300 underline">🎬 Watch Trailer</a>`
-          : ""
+        anime.trailer?.embed_url
+          ? `<iframe src="${anime.trailer.embed_url}" class="w-full aspect-video rounded-md" frameborder="0" allowfullscreen></iframe>`
+          : `<p class="text-sm text-zinc-400">No trailer available 😢</p>`
       }
+      
       <div class="pt-4">
         <h3 class="text-lg font-semibold mb-1 text-white">🌐 Stream on:</h3>
         <ul class="list-disc pl-6 text-zinc-400">
