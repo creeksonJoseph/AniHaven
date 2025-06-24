@@ -19,24 +19,36 @@
           AniFinder🎌
         </h1>
       </div>
-      <p class="text-xs font-serif text-zinc-400">
+      <p class="text-xs font-serif text-zinc-400 pr-5">
         Your favourite<br />anime plug
       </p>
     </header>
-    <main class="flex-grow flex flex-col p-4 items-center">
+    <main class="container mx-auto px-4 py-10 flex flex-col items-center grow">
       <!--search bar div-->
-      <div class="pb-4">
-        <form id="anime-form">
-          <input
-            type="text"
-            placeholder="Search anime (e.g. Naruto, Bleach...)"
-          />
-          <button type="submit">🔍 Search</button>
-        </form>
-      </div>
+
+      <form
+        id="anime-form"
+        class="flex flex-col md:flex-row items-center gap-4 mb-6"
+      >
+        <input
+          type="text"
+          id="search"
+          placeholder="Search anime (e.g. Naruto, Bleach...)"
+          class="w-full md:w-96 px-4 py-2 rounded-md focus:outline-none shadow-md border border-zinc-600"
+        />
+        <button
+          type="submit"
+          class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md shadow-lg transition duration-200"
+        >
+          🔍 Search
+        </button>
+      </form>
+
+      <h2 id="sectionTitle" class="text-3xl"></h2>
       <!--suggested anime div-->
+
       <div id="suggested-anime">
-        <h2>🔥🔥Trending🔥🔥</h2>
+        <!--anime suggestions here-->
       </div>
     </main>
     <footer class="bg-zinc-800 py-6 text-center text-sm text-zinc-400">
