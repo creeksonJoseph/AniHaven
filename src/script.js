@@ -89,8 +89,7 @@ function displaySingleAnime(anime) {
     "mb-4 px-4 py-2 bg-green-500 text-white font-semibold rounded hover:bg-green-600 transition";
 
   backBtn.addEventListener("click", () => {
-    sectionTitle.textContent = "🔥 Trending Anime";
-    fetchSuggestions();
+    location.reload();
   });
 
   const card = document.createElement("div");
