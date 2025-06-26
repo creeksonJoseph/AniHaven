@@ -28,8 +28,6 @@ form.addEventListener("submit", (e) => {
   searchInput.value = "";
 });
 
-//function declarations
-
 // Display grid of anime cards
 function displayAnimeGrid(animeList) {
   resultsDiv.innerHTML = "";
@@ -84,6 +82,16 @@ async function fetchSingleAnime(query) {
 function displaySingleAnime(anime) {
   resultsDiv.innerHTML = "";
   resultsDiv.className = "items-center";
+  //create back button to display trending anime
+  const backBtn = document.createElement("button");
+  backBtn.textContent = "⬅️ Back to suggestions";
+  backBtn.className =
+    "mb-4 px-4 py-2 bg-green-500 text-white font-semibold rounded hover:bg-green-600 transition";
+
+  backBtn.addEventListener("click", () => {
+    sectionTitle.textContent = "🔥 Trending Anime";
+    fetchSuggestions();
+  });
 
   const card = document.createElement("div");
   card.className =
@@ -112,6 +120,6 @@ function displaySingleAnime(anime) {
         </ul>
       </div>
     `;
-
+  resultsDiv.appendChild(backBtn);
   resultsDiv.appendChild(card);
 }
