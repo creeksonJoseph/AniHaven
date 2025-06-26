@@ -52,6 +52,7 @@ function displayAnimeGrid(animeList) {
           </div>
         `;
     card.addEventListener("click", () => {
+      sectionTitle.textContent = anime.title;
       displaySingleAnime(anime);
     });
     resultsDiv.appendChild(card);
