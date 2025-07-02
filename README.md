@@ -30,7 +30,7 @@ If you like it there are links to various platforms where you can stream the ani
 
 ### View the deployed website at:
 
-https://creeksonjoseph.github.io/phase-1-project/
+https://creeksonjoseph.github.io/Anifinder/
 
 ### Contacts
 
