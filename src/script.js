@@ -107,9 +107,9 @@ function displaySingleAnime(anime) {
   resultsDiv.className = "items-center";
 
   const backBtn = document.createElement("button");
-  backBtn.textContent = "⬅️ Back to suggestions";
+  backBtn.textContent = "Back";
   backBtn.className =
-    "mb-4 px-4 py-2 bg-green-500 text-white font-semibold rounded hover:bg-green-600 transition";
+    "mb-4 px-4 py-2  bg-zinc-600 text-green-500 hover:bg-green-500 hover:text-white font-semibold rounded transition";
 
   backBtn.addEventListener("click", () => {
     sectionTitle.textContent = "🔥 Trending Anime";
