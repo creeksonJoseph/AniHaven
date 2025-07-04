@@ -4,29 +4,34 @@ const searchInput = document.getElementById("search");
 
 let debounceTimeout;
 
-// Load top/trending anime by default
+// Load top-trending anime by default
 window.addEventListener("DOMContentLoaded", () => {
   console.log("Loading default suggestions...");
-  sectionTitle.textContent = "🔥 Trending Anime";
+  sectionTitle.textContent = " Trending Anime";
   fetchSuggestions();
 });
 
-// 🔍 Live search
+//  Live search
 searchInput.addEventListener("input", () => {
   clearTimeout(debounceTimeout);
   const query = searchInput.value.trim();
-  if (!query) {
-    sectionTitle.textContent = "🔥 Trending Anime";
-    fetchSuggestions();
-    return;
-  }
 
   debounceTimeout = setTimeout(() => {
     fetchSingleAnime(query);
   }, 400);
 });
 
-// 📦 Fetch top anime
+// Prevent Enter from refreshing the page
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    const query = searchInput.value.trim();
+    if (!query) return;
+    fetchSingleAnime(query);
+  }
+});
+
+//  Fetch top anime
 async function fetchSuggestions() {
   try {
     const res = await fetch(`https://api.jikan.moe/v4/top/anime?limit=12`);
@@ -38,7 +43,7 @@ async function fetchSuggestions() {
   }
 }
 
-// 🖼️ Grid of small cards
+//  Grid of small cards
 function displayAnimeGrid(animeList) {
   resultsDiv.innerHTML = "";
 
@@ -73,7 +78,7 @@ function displayAnimeGrid(animeList) {
   });
 }
 
-// 🔍 Fetch specific anime based on input
+//  Fetch specific anime based on input
 async function fetchSingleAnime(query) {
   sectionTitle.textContent = `🔍 Result for "${query}"`;
   try {
@@ -96,7 +101,7 @@ async function fetchSingleAnime(query) {
   }
 }
 
-// 📄 Big detailed card view
+// Big detailed card view
 function displaySingleAnime(anime) {
   resultsDiv.innerHTML = "";
   resultsDiv.className = "items-center";
@@ -126,7 +131,7 @@ function displaySingleAnime(anime) {
         class="w-full max-w-2xl mx-auto object-contain h-72 rounded-md" />
     `;
   } else {
-    // 💻 Desktop: show trailer first
+    //  Desktop: show trailer first
     content += anime.trailer?.embed_url
       ? `<iframe src="${anime.trailer.embed_url}" 
           class="w-full aspect-video rounded-md" 
@@ -134,7 +139,7 @@ function displaySingleAnime(anime) {
       : `<p class="text-sm text-zinc-400 text-center">🎬 No trailer available 😢</p>`;
   }
 
-  // ✍️ Details
+  //  Details
   content += `
     <h2 class="text-3xl font-bold text-green-400">${
       anime.title_english || anime.title
@@ -144,7 +149,7 @@ function displaySingleAnime(anime) {
     <p><strong>Rating:</strong> ${anime.score ?? "N/A"}</p>
   `;
 
-  // 📱 On mobile, show trailer below
+  //  On mobile, show trailer below
   if (isMobile && anime.trailer?.embed_url) {
     content += `
       <div>
