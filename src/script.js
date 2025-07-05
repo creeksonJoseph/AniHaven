@@ -112,7 +112,7 @@ function displaySingleAnime(anime) {
     "mb-4 px-4 py-2  bg-zinc-600 text-green-500 hover:bg-green-500 hover:text-white font-semibold rounded transition";
 
   backBtn.addEventListener("click", () => {
-    sectionTitle.textContent = "🔥 Trending Anime";
+    sectionTitle.textContent = "Trending Anime";
     location.reload();
   });
 
