@@ -53,18 +53,16 @@ function displayAnimeGrid(animeList) {
       "bg-zinc-800 rounded-lg shadow-lg overflow-hidden hover:scale-105 transition duration-200";
 
     card.innerHTML = `
-      <img src="${anime.images.jpg.image_url}" alt="${
-      anime.title
-    }" class="w-full h-60 object-cover">
+      <img src="${anime.images.jpg.image_url}" alt="${anime.title_english || anime.title} anime poster" class="w-full h-60 object-cover" loading="lazy">
       <div class="p-4 space-y-1">
         <h3 class="text-lg font-bold text-green-400">
           ${anime.title_english || anime.title}
         </h3>
         <p class="text-sm text-zinc-300">${
-          anime.synopsis?.slice(0, 80) || "No description..."
+          anime.synopsis?.slice(0, 80) || "No description available"
         }</p>
         <p class="text-xs text-zinc-500">Rating: <span class="text-white font-semibold">${
-          anime.score ?? "?"
+          anime.score ?? "Not rated"
         }</span></p>
       </div>
     `;
@@ -101,8 +99,20 @@ async function fetchSingleAnime(query) {
   }
 }
 
+// Update page meta for SEO
+function updatePageMeta(anime) {
+  const title = anime.title_english || anime.title;
+  document.title = `${title} - AniHaven | Anime Reviews & Streaming`;
+  
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) {
+    metaDesc.content = `Watch ${title} trailer, read reviews, and find streaming platforms. ${anime.synopsis?.slice(0, 120) || 'Discover this anime'} on AniHaven.`;
+  }
+}
+
 // Big detailed card view
 function displaySingleAnime(anime) {
+  updatePageMeta(anime);
   resultsDiv.innerHTML = "";
   resultsDiv.className = "items-center";
 
@@ -112,6 +122,13 @@ function displaySingleAnime(anime) {
     "mb-4 px-4 py-2  bg-zinc-600 text-green-500 hover:bg-green-500 hover:text-white font-semibold rounded transition";
 
   backBtn.addEventListener("click", () => {
+    // Reset page meta
+    document.title = "AniHaven - Discover, Review & Stream Your Favorite Anime | Free Anime Search";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.content = "Discover anime with AniHaven! Search thousands of anime titles, watch trailers, read reviews, and find streaming platforms. Your ultimate anime discovery tool.";
+    }
+    
     sectionTitle.textContent = "Trending Anime";
     location.reload();
   });

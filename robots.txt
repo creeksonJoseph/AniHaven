@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://creeksonjoseph.github.io/AniHaven/sitemap.xml

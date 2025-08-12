@@ -6,50 +6,102 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AniHaven 🎌</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>AniHaven - Discover, Review & Stream Your Favorite Anime | Free Anime Search</title>
+    <meta name="description" content="Discover anime with AniHaven! Search thousands of anime titles, watch trailers, read reviews, and find streaming platforms. Your ultimate anime discovery tool." />
+    <meta name="keywords" content="anime, anime search, anime reviews, anime streaming, anime trailers, manga, otaku, crunchyroll, anime discovery" />
+    <meta name="author" content="CreeksonJoseph" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://creeksonjoseph.github.io/AniHaven/" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="AniHaven - Discover & Stream Your Favorite Anime" />
+    <meta property="og:description" content="Search anime, watch trailers, read reviews, and find streaming platforms. Your ultimate anime discovery tool." />
+    <meta property="og:image" content="https://creeksonjoseph.github.io/AniHaven/img/home.png" />
+    <meta property="og:url" content="https://creeksonjoseph.github.io/AniHaven/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AniHaven" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AniHaven - Discover & Stream Your Favorite Anime" />
+    <meta name="twitter:description" content="Search anime, watch trailers, read reviews, and find streaming platforms." />
+    <meta name="twitter:image" content="https://creeksonjoseph.github.io/AniHaven/img/home.png" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎌</text></svg>" />
+    
     <link rel="stylesheet" href="src/output.css" />
     <meta name="google-site-verification" content="_rEHFuhSU5zqlzdQrU188EnYWALxhFF8MmbZW6VDQRc" />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "AniHaven",
+      "description": "Discover anime with AniHaven! Search thousands of anime titles, watch trailers, read reviews, and find streaming platforms.",
+      "url": "https://creeksonjoseph.github.io/AniHaven/",
+      "applicationCategory": "Entertainment",
+      "operatingSystem": "Web Browser",
+      "author": {
+        "@type": "Person",
+        "name": "CreeksonJoseph",
+        "email": "charanajoseph@gmail.com"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
   </head>
 
   <body class="flex flex-col min-h-screen">
     <header
       class="fixed top-0 left-0 w-full flex flex-row justify-between items-center bg-zinc-800 shadow-lg py-6"
+      role="banner"
     >
       <div class="ml-2">
         <h1 class="text-3xl font-bold decoration-red-500 text-green-700">
-          Anihaven🎌
+          AniHaven🎌
         </h1>
       </div>
       <p class="text-xs font-serif text-zinc-400 pr-5">
-        Your favourite<br />anime plug
+        Your favourite<br />anime discovery tool
       </p>
     </header>
-    <main class="container mx-auto px-4 py-10 pt-24 grow">
-      <!--search bar div-->
+    <main class="container mx-auto px-4 py-10 pt-24 grow" role="main">
       <div class="flex flex-col items-center mb-4">
         <form
           id="anime-form"
           class="flex flex-col md:flex-row items-center gap-4 mb-4"
+          role="search"
+          aria-label="Search for anime"
         >
           <input
             type="text"
             id="search"
             placeholder="Search anime (e.g. Naruto, Bleach...)"
             class="w-full md:w-96 px-4 py-2 rounded-md focus:outline-none shadow-md border border-zinc-600"
+            aria-label="Enter anime name to search"
+            autocomplete="off"
           />
         </form>
 
         <h2 id="sectionTitle" class="text-3xl text-green-800"></h2>
       </div>
-      <!--suggested anime section-->
 
       <section
         id="suggestedAnime"
         class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4"
+        aria-label="Anime results"
       ></section>
     </main>
-    <footer class="bg-zinc-800 py-6 text-center text-sm text-zinc-400">
-      Built by CreeksonJoseph 💻 | Powered by Jikan API
+    <footer class="bg-zinc-800 py-6 text-center text-sm text-zinc-400" role="contentinfo">
+      Built by <a href="mailto:charanajoseph@gmail.com" class="text-green-400 hover:underline">CreeksonJoseph</a> 💻 | Powered by <a href="https://jikan.moe/" class="text-green-400 hover:underline" target="_blank" rel="noopener">Jikan API</a>
     </footer>
     <script src="./src/script.js"></script>
   </body>
