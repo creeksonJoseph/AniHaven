@@ -1,8 +1,14 @@
 const sectionTitle = document.getElementById("sectionTitle");
 const resultsDiv = document.getElementById("suggestedAnime");
 const searchInput = document.getElementById("search");
+const loadingSpinner = document.getElementById("loadingSpinner");
 
 let debounceTimeout;
+let currentPage = 1;
+let isLoading = false;
+let hasMorePages = true;
+let currentMode = 'trending';
+let currentQuery = '';
 
 // Load top-trending anime by default
 window.addEventListener("DOMContentLoaded", () => {
@@ -11,13 +17,33 @@ window.addEventListener("DOMContentLoaded", () => {
   fetchSuggestions();
 });
 
+// Infinite scroll
+window.addEventListener('scroll', () => {
+  if (isLoading || !hasMorePages) return;
+  
+  const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+  if (scrollTop + clientHeight >= scrollHeight - 1000) {
+    loadMoreContent();
+  }
+});
+
 //  Live search
 searchInput.addEventListener("input", () => {
   clearTimeout(debounceTimeout);
   const query = searchInput.value.trim();
 
   debounceTimeout = setTimeout(() => {
-    fetchSingleAnime(query);
+    if (query) {
+      resetPagination();
+      currentMode = 'search';
+      currentQuery = query;
+      fetchSearchResults(query);
+    } else {
+      resetPagination();
+      currentMode = 'trending';
+      sectionTitle.textContent = " Trending Anime";
+      fetchSuggestions();
+    }
   }, 400);
 });
 
@@ -27,25 +53,69 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     const query = searchInput.value.trim();
     if (!query) return;
-    fetchSingleAnime(query);
+    resetPagination();
+    currentMode = 'search';
+    currentQuery = query;
+    fetchSearchResults(query);
   }
 });
 
+function showSpinner() {
+  loadingSpinner.classList.remove('hidden');
+}
+
+function hideSpinner() {
+  loadingSpinner.classList.add('hidden');
+}
+
+function resetPagination() {
+  currentPage = 1;
+  hasMorePages = true;
+  resultsDiv.innerHTML = '';
+}
+
+async function loadMoreContent() {
+  if (currentMode === 'trending') {
+    await fetchSuggestions(true);
+  } else if (currentMode === 'search') {
+    await fetchSearchResults(currentQuery, true);
+  }
+  // Don't load more content in single anime view
+}
+
 //  Fetch top anime
-async function fetchSuggestions() {
+async function fetchSuggestions(append = false) {
+  if (isLoading) return;
+  isLoading = true;
+  showSpinner();
+  
   try {
-    const res = await fetch(`https://api.jikan.moe/v4/top/anime?limit=12`);
+    const res = await fetch(`https://api.jikan.moe/v4/top/anime?limit=12&page=${currentPage}`);
     const data = await res.json();
-    displayAnimeGrid(data.data);
+    
+    if (data.data.length === 0) {
+      hasMorePages = false;
+    } else {
+      displayAnimeGrid(data.data, append);
+      currentPage++;
+    }
   } catch (err) {
     console.error("Error fetching suggestions:", err);
-    resultsDiv.innerHTML = `<p class="text-red-500">Couldn’t load suggestions 😓</p>`;
+    if (!append) {
+      resultsDiv.innerHTML = `<p class="text-red-500">Couldn't load suggestions 😓</p>`;
+    }
+  } finally {
+    isLoading = false;
+    hideSpinner();
   }
 }
 
 //  Grid of small cards
-function displayAnimeGrid(animeList) {
-  resultsDiv.innerHTML = "";
+function displayAnimeGrid(animeList, append = false) {
+  if (!append) {
+    resultsDiv.innerHTML = "";
+    resultsDiv.className = "grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4";
+  }
 
   animeList.forEach((anime) => {
     const card = document.createElement("div");
@@ -76,26 +146,39 @@ function displayAnimeGrid(animeList) {
   });
 }
 
-//  Fetch specific anime based on input
-async function fetchSingleAnime(query) {
-  sectionTitle.textContent = `🔍 Result for "${query}"`;
+async function fetchSearchResults(query, append = false) {
+  if (isLoading) return;
+  isLoading = true;
+  showSpinner();
+  
+  if (!append) {
+    sectionTitle.textContent = `🔍 Results for "${query}"`;
+  }
+  
   try {
     const res = await fetch(
-      `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}`
+      `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&page=${currentPage}&limit=12`
     );
     const data = await res.json();
 
-    // Prefer anime with English title
-    const anime = data.data.find((a) => a.title_english) || data.data[0];
-    if (!anime) {
-      resultsDiv.innerHTML = `<p class="text-gray-400">No anime found for "${query}"</p>`;
+    if (data.data.length === 0) {
+      hasMorePages = false;
+      if (!append) {
+        resultsDiv.innerHTML = `<p class="text-gray-400">No anime found for "${query}"</p>`;
+      }
       return;
     }
 
-    displaySingleAnime(anime);
+    displayAnimeGrid(data.data, append);
+    currentPage++;
   } catch (err) {
     console.error("Error fetching anime:", err);
-    resultsDiv.innerHTML = `<p class="text-red-500">Something went wrong 😢</p>`;
+    if (!append) {
+      resultsDiv.innerHTML = `<p class="text-red-500">Something went wrong 😢</p>`;
+    }
+  } finally {
+    isLoading = false;
+    hideSpinner();
   }
 }
 
@@ -115,6 +198,10 @@ function displaySingleAnime(anime) {
   updatePageMeta(anime);
   resultsDiv.innerHTML = "";
   resultsDiv.className = "items-center";
+  
+  // Disable infinite scroll in single view
+  currentMode = 'single';
+  hasMorePages = false;
 
   const backBtn = document.createElement("button");
   backBtn.textContent = "Back";
@@ -129,8 +216,12 @@ function displaySingleAnime(anime) {
       metaDesc.content = "Discover anime with AniHaven! Search thousands of anime titles, watch trailers, read reviews, and find streaming platforms. Your ultimate anime discovery tool.";
     }
     
-    sectionTitle.textContent = "Trending Anime";
-    location.reload();
+    resetPagination();
+    currentMode = 'trending';
+    searchInput.value = '';
+    sectionTitle.textContent = " Trending Anime";
+    resultsDiv.className = "grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4";
+    fetchSuggestions();
   });
 
   const card = document.createElement("div");
