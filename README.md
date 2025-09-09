@@ -161,9 +161,9 @@ Contributions are welcome! Here's how you can help:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👨💻 Author
+## 👨💻 Developer
 
-**CreeksonJoseph**
+**Charana Joseph**
 
 - 📧 Email: [charanajoseph@gmail.com](mailto:charanajoseph@gmail.com)
 - 🌐 GitHub: [@creeksonjoseph](https://github.com/creeksonjoseph)
