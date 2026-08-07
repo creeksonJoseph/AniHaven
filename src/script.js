@@ -92,6 +92,10 @@ async function fetchSuggestions(append = false) {
   try {
     const res = await fetch(`https://api.jikan.moe/v4/top/anime?limit=12&page=${currentPage}`);
     const data = await res.json();
+
+    if (!res.ok || !data || !Array.isArray(data.data)) {
+      throw new Error(data?.message || `Jikan API error (${res.status})`);
+    }
     
     if (data.data.length === 0) {
       hasMorePages = false;
@@ -102,11 +106,33 @@ async function fetchSuggestions(append = false) {
   } catch (err) {
     console.error("Error fetching suggestions:", err);
     if (!append) {
-      resultsDiv.innerHTML = `<p class="text-red-500">Couldn't load suggestions 😓</p>`;
+      displayErrorMessage(
+        "Couldn't load suggestions",
+        err.message || "Jikan API / MyAnimeList service may be temporarily unavailable.",
+        () => fetchSuggestions()
+      );
     }
   } finally {
     isLoading = false;
     hideSpinner();
+  }
+}
+
+function displayErrorMessage(title, details, retryCallback) {
+  resultsDiv.className = "w-full flex justify-center";
+  resultsDiv.innerHTML = `
+    <div class="text-center py-10 px-6 bg-zinc-800/80 rounded-xl border border-zinc-700/60 max-w-md w-full mx-auto my-6 space-y-3 shadow-lg">
+      <p class="text-3xl">⚠️</p>
+      <h3 class="text-lg font-bold text-red-400">${title}</h3>
+      <p class="text-sm text-zinc-400 leading-relaxed">${details}</p>
+      ${retryCallback ? '<button id="retryApiBtn" class="mt-2 px-4 py-2 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-md transition duration-150 cursor-pointer">Retry</button>' : ''}
+    </div>
+  `;
+  if (retryCallback) {
+    document.getElementById("retryApiBtn")?.addEventListener("click", () => {
+      resetPagination();
+      retryCallback();
+    });
   }
 }
 
@@ -120,10 +146,12 @@ function displayAnimeGrid(animeList, append = false) {
   animeList.forEach((anime) => {
     const card = document.createElement("div");
     card.className =
-      "bg-zinc-800 rounded-lg shadow-lg overflow-hidden hover:scale-105 transition duration-200";
+      "bg-zinc-800 rounded-lg shadow-lg overflow-hidden hover:scale-105 transition duration-200 cursor-pointer";
+
+    const imageUrl = anime.images?.jpg?.image_url || '';
 
     card.innerHTML = `
-      <img src="${anime.images.jpg.image_url}" alt="${anime.title_english || anime.title} anime poster" class="w-full h-60 object-cover" loading="lazy">
+      <img src="${imageUrl}" alt="${anime.title_english || anime.title || 'Anime'} poster" class="w-full h-60 object-cover" loading="lazy">
       <div class="p-4 space-y-1">
         <h3 class="text-lg font-bold text-green-400">
           ${anime.title_english || anime.title}
@@ -161,10 +189,15 @@ async function fetchSearchResults(query, append = false) {
     );
     const data = await res.json();
 
+    if (!res.ok || !data || !Array.isArray(data.data)) {
+      throw new Error(data?.message || `Jikan API error (${res.status})`);
+    }
+
     if (data.data.length === 0) {
       hasMorePages = false;
       if (!append) {
-        resultsDiv.innerHTML = `<p class="text-gray-400">No anime found for "${query}"</p>`;
+        resultsDiv.className = "w-full flex justify-center";
+        resultsDiv.innerHTML = `<p class="text-gray-400 py-8">No anime found for "${query}"</p>`;
       }
       return;
     }
@@ -174,7 +207,11 @@ async function fetchSearchResults(query, append = false) {
   } catch (err) {
     console.error("Error fetching anime:", err);
     if (!append) {
-      resultsDiv.innerHTML = `<p class="text-red-500">Something went wrong 😢</p>`;
+      displayErrorMessage(
+        `Something went wrong searching for "${query}"`,
+        err.message || "Jikan API / MyAnimeList service may be temporarily unavailable.",
+        () => fetchSearchResults(query)
+      );
     }
   } finally {
     isLoading = false;
