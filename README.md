@@ -81,7 +81,7 @@
 | **HTML5**              | Structure & Semantics           | Latest  |
 | **Tailwind CSS**       | Styling & Responsive Design     | ^4.1.10 |
 | **Vanilla JavaScript** | Interactivity & API Integration | ES6+    |
-| **Jikan API**          | Anime Data Source               | v4      |
+| **AniList API**        | Anime Data Source               | GraphQL |
 
 ## 🔧 Key Features Implementation
 
@@ -112,12 +112,12 @@
 
 ## 🌐 API Integration
 
-AniHaven uses the [Jikan API](https://jikan.moe/) - an unofficial MyAnimeList API:
+AniHaven uses the [AniList GraphQL API](https://anilist.co/) - a modern, reliable anime database:
 
-- **Trending Anime**: `GET /v4/top/anime`
-- **Search**: `GET /v4/anime?q={query}`
-- **Pagination**: Supports limit and page parameters
-- **Rate Limiting**: Handled with proper error management
+- **Trending Anime**: `Page { media(sort: TRENDING_DESC, type: ANIME) }`
+- **Search**: `Page { media(search: $q, type: ANIME) }`
+- **Pagination**: `Page(page: N, perPage: 12)` with `pageInfo.hasNextPage`
+- **Rate Limiting**: 90 requests/minute, no API key required
 
 ## 🎯 Usage
 
@@ -170,7 +170,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- [Jikan API](https://jikan.moe/) for providing free anime data
+- [AniList API](https://anilist.co/) for providing free, reliable anime data
 
 ---
 
