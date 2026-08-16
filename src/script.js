@@ -83,6 +83,22 @@ async function loadMoreContent() {
   // Don't load more content in single anime view
 }
 
+// Jikan fetch with retry + exponential backoff (handles 504 gateway timeouts)
+async function jikanFetch(url, retries = 3, delay = 1000) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const res = await fetch(url);
+    if (res.ok) return res;
+    // On 5xx errors, retry after a delay
+    if (res.status >= 500 && attempt < retries) {
+      console.warn(`Jikan ${res.status} on attempt ${attempt}/${retries}, retrying in ${delay}ms…`);
+      await new Promise(r => setTimeout(r, delay));
+      delay *= 2;
+      continue;
+    }
+    return res; // return for caller to handle
+  }
+}
+
 //  Fetch top anime
 async function fetchSuggestions(append = false) {
   if (isLoading) return;
@@ -90,7 +106,7 @@ async function fetchSuggestions(append = false) {
   showSpinner();
   
   try {
-    const res = await fetch(`https://api.jikan.moe/v4/top/anime?limit=12&page=${currentPage}`);
+    const res = await jikanFetch(`https://api.jikan.moe/v4/top/anime?limit=12&page=${currentPage}`);
     const data = await res.json();
 
     if (!res.ok || !data || !Array.isArray(data.data)) {
@@ -108,7 +124,7 @@ async function fetchSuggestions(append = false) {
     if (!append) {
       displayErrorMessage(
         "Couldn't load suggestions",
-        err.message || "Jikan API / MyAnimeList service may be temporarily unavailable.",
+        err.message || "Jikan API / AniHaven service may be temporarily unavailable.",
         () => fetchSuggestions()
       );
     }
@@ -184,7 +200,7 @@ async function fetchSearchResults(query, append = false) {
   }
   
   try {
-    const res = await fetch(
+    const res = await jikanFetch(
       `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&page=${currentPage}&limit=12`
     );
     const data = await res.json();
@@ -209,7 +225,7 @@ async function fetchSearchResults(query, append = false) {
     if (!append) {
       displayErrorMessage(
         `Something went wrong searching for "${query}"`,
-        err.message || "Jikan API / MyAnimeList service may be temporarily unavailable.",
+        err.message || "Jikan API / AniHaven service may be temporarily unavailable.",
         () => fetchSearchResults(query)
       );
     }
