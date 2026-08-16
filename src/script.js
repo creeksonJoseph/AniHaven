@@ -83,48 +83,98 @@ async function loadMoreContent() {
   // Don't load more content in single anime view
 }
 
-// Jikan fetch with retry + exponential backoff (handles 504 gateway timeouts)
-async function jikanFetch(url, retries = 3, delay = 1000) {
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    const res = await fetch(url);
-    if (res.ok) return res;
-    // On 5xx errors, retry after a delay
-    if (res.status >= 500 && attempt < retries) {
-      console.warn(`Jikan ${res.status} on attempt ${attempt}/${retries}, retrying in ${delay}ms…`);
-      await new Promise(r => setTimeout(r, delay));
-      delay *= 2;
-      continue;
-    }
-    return res; // return for caller to handle
+// ─── AniList GraphQL API (replaces Jikan) ───────────────────────────────────
+const ANILIST_ENDPOINT = 'https://graphql.anilist.co';
+
+// Shared fields requested for every anime
+const ANIME_FIELDS = `
+  id
+  title { romaji english }
+  coverImage { large }
+  description
+  averageScore
+  episodes
+  trailer { id site }
+`;
+
+// Core GraphQL fetch helper
+async function anilistFetch(query, variables = {}) {
+  const res = await fetch(ANILIST_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ query, variables }),
+  });
+  const json = await res.json();
+  if (!res.ok || json.errors) {
+    throw new Error(json.errors?.[0]?.message || `AniList error (${res.status})`);
   }
+  return json;
 }
 
-//  Fetch top anime
+// Strip HTML tags that AniList includes in descriptions
+function stripHtml(str) {
+  if (!str) return '';
+  return str.replace(/<[^>]*>/g, '').replace(/&[a-z]+;/gi, ' ').trim();
+}
+
+// Build a YouTube/Dailymotion embed URL from AniList's trailer object
+function buildTrailerUrl(trailer) {
+  if (!trailer?.id || !trailer?.site) return null;
+  if (trailer.site.toLowerCase() === 'youtube') {
+    return `https://www.youtube.com/embed/${trailer.id}`;
+  }
+  if (trailer.site.toLowerCase() === 'dailymotion') {
+    return `https://www.dailymotion.com/embed/video/${trailer.id}`;
+  }
+  return null;
+}
+
+// Normalize AniList media → internal shape (matches what display fns expect)
+function normalizeAniList(media) {
+  return {
+    title_english: media.title?.english || null,
+    title: media.title?.romaji || 'Unknown Title',
+    images: { jpg: { image_url: media.coverImage?.large || '' } },
+    synopsis: stripHtml(media.description) || 'No description available.',
+    score: media.averageScore ? (media.averageScore / 10).toFixed(1) : null,
+    episodes: media.episodes ?? null,
+    trailer: { embed_url: buildTrailerUrl(media.trailer) },
+  };
+}
+
+// Fetch trending anime
 async function fetchSuggestions(append = false) {
   if (isLoading) return;
   isLoading = true;
   showSpinner();
-  
-  try {
-    const res = await jikanFetch(`https://api.jikan.moe/v4/top/anime?limit=12&page=${currentPage}`);
-    const data = await res.json();
 
-    if (!res.ok || !data || !Array.isArray(data.data)) {
-      throw new Error(data?.message || `Jikan API error (${res.status})`);
+  const query = `
+    query ($page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        pageInfo { hasNextPage }
+        media(type: ANIME, sort: TRENDING_DESC) { ${ANIME_FIELDS} }
+      }
     }
-    
-    if (data.data.length === 0) {
+  `;
+
+  try {
+    const json = await anilistFetch(query, { page: currentPage, perPage: 12 });
+    const page = json.data.Page;
+    const items = (page.media || []).map(normalizeAniList);
+
+    if (items.length === 0 || !page.pageInfo.hasNextPage) {
       hasMorePages = false;
-    } else {
-      displayAnimeGrid(data.data, append);
+    }
+    if (items.length > 0) {
+      displayAnimeGrid(items, append);
       currentPage++;
     }
   } catch (err) {
-    console.error("Error fetching suggestions:", err);
+    console.error('Error fetching suggestions:', err);
     if (!append) {
       displayErrorMessage(
         "Couldn't load suggestions",
-        err.message || "Jikan API / AniHaven service may be temporarily unavailable.",
+        err.message || 'AniList service may be temporarily unavailable.',
         () => fetchSuggestions()
       );
     }
@@ -194,38 +244,43 @@ async function fetchSearchResults(query, append = false) {
   if (isLoading) return;
   isLoading = true;
   showSpinner();
-  
+
   if (!append) {
     sectionTitle.textContent = `🔍 Results for "${query}"`;
   }
-  
-  try {
-    const res = await jikanFetch(
-      `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&page=${currentPage}&limit=12`
-    );
-    const data = await res.json();
 
-    if (!res.ok || !data || !Array.isArray(data.data)) {
-      throw new Error(data?.message || `Jikan API error (${res.status})`);
+  const gqlQuery = `
+    query ($search: String, $page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        pageInfo { hasNextPage }
+        media(search: $search, type: ANIME) { ${ANIME_FIELDS} }
+      }
     }
+  `;
 
-    if (data.data.length === 0) {
+  try {
+    const json = await anilistFetch(gqlQuery, { search: query, page: currentPage, perPage: 12 });
+    const page = json.data.Page;
+    const items = (page.media || []).map(normalizeAniList);
+
+    if (items.length === 0) {
       hasMorePages = false;
       if (!append) {
-        resultsDiv.className = "w-full flex justify-center";
+        resultsDiv.className = 'w-full flex justify-center';
         resultsDiv.innerHTML = `<p class="text-gray-400 py-8">No anime found for "${query}"</p>`;
       }
       return;
     }
 
-    displayAnimeGrid(data.data, append);
+    displayAnimeGrid(items, append);
     currentPage++;
+    if (!page.pageInfo.hasNextPage) hasMorePages = false;
   } catch (err) {
-    console.error("Error fetching anime:", err);
+    console.error('Error fetching anime:', err);
     if (!append) {
       displayErrorMessage(
         `Something went wrong searching for "${query}"`,
-        err.message || "Jikan API / AniHaven service may be temporarily unavailable.",
+        err.message || 'AniList service may be temporarily unavailable.',
         () => fetchSearchResults(query)
       );
     }
