@@ -187,11 +187,11 @@ async function fetchSuggestions(append = false) {
 function displayErrorMessage(title, details, retryCallback) {
   resultsDiv.className = "w-full flex justify-center";
   resultsDiv.innerHTML = `
-    <div class="text-center py-10 px-6 bg-zinc-800/80 rounded-xl border border-zinc-700/60 max-w-md w-full mx-auto my-6 space-y-3 shadow-lg">
+    <div class="text-center py-10 px-6 bg-slate-900/80 rounded-xl border border-slate-700/60 max-w-md w-full mx-auto my-6 space-y-3 shadow-lg">
       <p class="text-3xl">⚠️</p>
-      <h3 class="text-lg font-bold text-red-400">${title}</h3>
-      <p class="text-sm text-zinc-400 leading-relaxed">${details}</p>
-      ${retryCallback ? '<button id="retryApiBtn" class="mt-2 px-4 py-2 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-md transition duration-150 cursor-pointer">Retry</button>' : ''}
+      <h3 class="text-lg font-bold text-red-500">${title}</h3>
+      <p class="text-sm text-slate-400 leading-relaxed">${details}</p>
+      ${retryCallback ? '<button id="retryApiBtn" class="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-md transition duration-150 cursor-pointer">Retry</button>' : ''}
     </div>
   `;
   if (retryCallback) {
@@ -212,20 +212,22 @@ function displayAnimeGrid(animeList, append = false) {
   animeList.forEach((anime) => {
     const card = document.createElement("div");
     card.className =
-      "bg-zinc-800 rounded-lg shadow-lg overflow-hidden hover:scale-105 transition duration-200 cursor-pointer";
+      "bg-slate-900 border border-slate-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300 cursor-pointer group";
 
     const imageUrl = anime.images?.jpg?.image_url || '';
 
     card.innerHTML = `
-      <img src="${imageUrl}" alt="${anime.title_english || anime.title || 'Anime'} poster" class="w-full h-60 object-cover" loading="lazy">
+      <div class="relative overflow-hidden aspect-[3/4]">
+        <img src="${imageUrl}" alt="${anime.title_english || anime.title || 'Anime'} poster" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+      </div>
       <div class="p-4 space-y-1">
-        <h3 class="text-lg font-bold text-green-400">
+        <h3 class="text-lg font-bold font-heading text-slate-100 group-hover:text-indigo-400 line-clamp-1">
           ${anime.title_english || anime.title}
         </h3>
-        <p class="text-sm text-zinc-300">${
+        <p class="text-sm text-slate-400 line-clamp-2">${
           anime.synopsis?.slice(0, 80) || "No description available"
         }</p>
-        <p class="text-xs text-zinc-500">Rating: <span class="text-white font-semibold">${
+        <p class="text-xs text-slate-500 font-medium">Rating: <span class="text-indigo-400 font-bold bg-indigo-500/10 px-2 py-0.5 rounded-md">${
           anime.score ?? "Not rated"
         }</span></p>
       </div>
@@ -314,7 +316,7 @@ function displaySingleAnime(anime) {
   const backBtn = document.createElement("button");
   backBtn.textContent = "Back";
   backBtn.className =
-    "mb-4 px-4 py-2  bg-zinc-600 text-green-500 hover:bg-green-500 hover:text-white font-semibold rounded transition";
+    "mb-6 px-4 py-2 bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white font-semibold rounded-lg flex items-center gap-2 transition max-w-max";
 
   backBtn.addEventListener("click", () => {
     // Reset page meta
@@ -334,7 +336,7 @@ function displaySingleAnime(anime) {
 
   const card = document.createElement("div");
   card.className =
-    "bg-zinc-800 rounded-lg shadow-xl p-6 w-full mx-auto text-left space-y-4";
+    "bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 md:p-8 w-full mx-auto text-left space-y-6";
 
   const isMobile = window.innerWidth < 640;
 
@@ -352,15 +354,15 @@ function displaySingleAnime(anime) {
       ? `<iframe src="${anime.trailer.embed_url}" 
           class="w-full aspect-video rounded-md" 
           frameborder="0" allowfullscreen></iframe>`
-      : `<p class="text-sm text-zinc-400 text-center">🎬 No trailer available 😢</p>`;
+      : `<p class="text-sm text-slate-400 text-center">🎬 No trailer available 😢</p>`;
   }
 
   //  Details
   content += `
-    <h2 class="text-3xl font-bold text-green-400">${
+    <h2 class="text-3xl md:text-4xl font-bold font-heading text-slate-100">${
       anime.title_english || anime.title
     }</h2>
-    <p class="text-zinc-300">${anime.synopsis}</p>
+    <p class="text-slate-300 leading-relaxed text-lg">${anime.synopsis}</p>
     <p><strong>Episodes:</strong> ${anime.episodes ?? "?"}</p>
     <p><strong>Rating:</strong> ${anime.score ?? "N/A"}</p>
   `;
@@ -369,7 +371,7 @@ function displaySingleAnime(anime) {
   if (isMobile && anime.trailer?.embed_url) {
     content += `
       <div>
-        <h3 class="text-white font-semibold mt-4 mb-1">🎬 Trailer:</h3>
+        <h3 class="text-slate-100 font-semibold font-heading mt-6 mb-2">🎬 Trailer:</h3>
         <iframe src="${anime.trailer.embed_url}" 
           class="w-full aspect-video rounded-md" 
           frameborder="0" allowfullscreen></iframe>
@@ -380,11 +382,11 @@ function displaySingleAnime(anime) {
   // 🌐 Streaming platforms
   content += `
     <div class="pt-4">
-      <h3 class="text-lg font-semibold mb-1 text-white">🌐 Stream on:</h3>
-      <ul class="list-disc pl-6 text-zinc-400">
-        <li><a href="https://crunchyroll.com" target="_blank" class="underline text-green-300">Crunchyroll</a></li>
-        <li><a href="https://animepahe.ru" target="_blank" class="underline text-green-300">AnimePahe</a></li>
-        <li><a href="https://gogoanime.ai" target="_blank" class="underline text-green-300">Gogoanime</a></li>
+      <h3 class="text-lg font-semibold font-heading mb-2 text-slate-100">🌐 Stream on:</h3>
+      <ul class="list-disc pl-6 text-slate-400">
+        <li><a href="https://crunchyroll.com" target="_blank" class="text-indigo-400 hover:text-indigo-300 hover:underline">Crunchyroll</a></li>
+        <li><a href="https://animepahe.ru" target="_blank" class="text-indigo-400 hover:text-indigo-300 hover:underline">AnimePahe</a></li>
+        <li><a href="https://gogoanime.ai" target="_blank" class="text-indigo-400 hover:text-indigo-300 hover:underline">Gogoanime</a></li>
       </ul>
     </div>
   `;
