@@ -1,7 +1,7 @@
 <!doctype html>
 <html
   lang="en"
-  class="bg-gradient-to-br from-zinc-900 via-black to-zinc-950 text-white"
+  class="bg-slate-950 text-slate-200 font-sans"
 >
   <head>
     <meta charset="UTF-8" />
@@ -66,6 +66,11 @@
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎌</text></svg>"
     />
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="src/output.css" />
     <meta
       name="google-site-verification"
@@ -98,15 +103,15 @@
 
   <body class="flex flex-col min-h-screen">
     <header
-      class="fixed top-0 left-0 w-full flex flex-row justify-between items-center bg-zinc-800 shadow-lg py-6"
+      class="fixed top-0 left-0 w-full flex flex-row justify-between items-center bg-slate-950/80 backdrop-blur-md shadow-lg py-4 border-b border-slate-800 z-50"
       role="banner"
     >
       <div class="ml-2">
-        <h1 class="text-3xl font-bold decoration-red-500 text-green-700">
+        <h1 class="text-3xl font-bold font-heading text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500">
           AniHaven🎌
         </h1>
       </div>
-      <p class="text-xs font-serif text-zinc-400 pr-5">
+      <p class="text-xs font-serif text-slate-400 pr-5">
         Your favourite<br />anime discovery tool
       </p>
     </header>
@@ -122,13 +127,13 @@
             type="text"
             id="search"
             placeholder="Search anime (e.g. Naruto, Bleach...)"
-            class="w-full md:w-96 px-4 py-2 rounded-md focus:outline-none shadow-md border border-zinc-600"
+            class="w-full md:w-96 px-4 py-3 rounded-full focus:outline-none shadow-md bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
             aria-label="Enter anime name to search"
             autocomplete="off"
           />
         </form>
 
-        <h2 id="sectionTitle" class="text-3xl text-green-800"></h2>
+        <h2 id="sectionTitle" class="text-2xl font-semibold font-heading text-slate-100"></h2>
       </div>
 
       <section
@@ -143,24 +148,24 @@
         class="hidden flex justify-center items-center py-8"
       >
         <div
-          class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"
         ></div>
       </div>
     </main>
     <footer
-      class="bg-zinc-800 py-6 text-center text-sm text-zinc-400"
+      class="bg-slate-900 py-6 text-center text-sm text-slate-400 border-t border-slate-800"
       role="contentinfo"
     >
       Built by
       <a
         href="mailto:charanajoseph@gmail.com"
-        class="text-green-400 hover:underline"
+        class="text-indigo-400 hover:text-indigo-300 hover:underline"
         >CreeksonJoseph</a
       >
       💻 | Powered by
       <a
         href="https://anilist.co/"
-        class="text-green-400 hover:underline"
+        class="text-indigo-400 hover:text-indigo-300 hover:underline"
         target="_blank"
         rel="noopener"
         >AniList API</a
