@@ -212,24 +212,31 @@ function displayAnimeGrid(animeList, append = false) {
   animeList.forEach((anime) => {
     const card = document.createElement("div");
     card.className =
-      "bg-slate-900 border border-slate-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300 cursor-pointer group";
+      "bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/20 hover:-translate-y-2 hover:bg-white/10 transition-all duration-300 cursor-pointer group flex flex-col";
 
     const imageUrl = anime.images?.jpg?.image_url || '';
 
     card.innerHTML = `
       <div class="relative overflow-hidden aspect-[3/4]">
-        <img src="${imageUrl}" alt="${anime.title_english || anime.title || 'Anime'} poster" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+        <img src="${imageUrl}" alt="${anime.title_english || anime.title || 'Anime'} poster" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" loading="lazy">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-80"></div>
+        <div class="absolute bottom-3 left-3 right-3 flex justify-between items-end">
+          <span class="inline-flex items-center gap-1 bg-black/60 backdrop-blur-md text-indigo-300 text-xs font-bold px-2.5 py-1 rounded-full border border-white/10 shadow-lg">
+            <svg class="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            ${anime.score ?? "N/A"}
+          </span>
+          ${anime.episodes ? `<span class="bg-black/60 backdrop-blur-md text-slate-300 text-xs font-medium px-2 py-1 rounded-md border border-white/10 shadow-lg">${anime.episodes} EPS</span>` : ''}
+        </div>
       </div>
-      <div class="p-4 space-y-1">
-        <h3 class="text-lg font-bold font-heading text-slate-100 group-hover:text-indigo-400 line-clamp-1">
-          ${anime.title_english || anime.title}
-        </h3>
-        <p class="text-sm text-slate-400 line-clamp-2">${
-          anime.synopsis?.slice(0, 80) || "No description available"
-        }</p>
-        <p class="text-xs text-slate-500 font-medium">Rating: <span class="text-indigo-400 font-bold bg-indigo-500/10 px-2 py-0.5 rounded-md">${
-          anime.score ?? "Not rated"
-        }</span></p>
+      <div class="p-5 flex-grow flex flex-col justify-between">
+        <div class="space-y-2">
+          <h3 class="text-lg font-bold font-heading text-slate-100 group-hover:text-indigo-400 transition-colors line-clamp-1" title="${anime.title_english || anime.title}">
+            ${anime.title_english || anime.title}
+          </h3>
+          <p class="text-sm text-slate-400 line-clamp-2 leading-relaxed">${
+            anime.synopsis?.slice(0, 100) || "No description available"
+          }</p>
+        </div>
       </div>
     `;
 
@@ -334,64 +341,67 @@ function displaySingleAnime(anime) {
     fetchSuggestions();
   });
 
+  const wrapper = document.createElement("div");
+  wrapper.className = "w-full max-w-5xl mx-auto relative";
+
+  // Create a blurred background element if possible
+  const backdrop = document.createElement("div");
+  backdrop.className = "absolute inset-0 -z-10 rounded-3xl overflow-hidden opacity-20 blur-3xl";
+  backdrop.innerHTML = `<img src="${anime.images.jpg.image_url}" class="w-full h-full object-cover">`;
+
   const card = document.createElement("div");
   card.className =
-    "bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 md:p-8 w-full mx-auto text-left space-y-6";
-
-  const isMobile = window.innerWidth < 640;
+    "bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-6 md:p-10 w-full text-left flex flex-col md:flex-row gap-8";
 
   let content = "";
+  const title = anime.title_english || anime.title;
+  const ratingBadge = `<span class="inline-flex items-center gap-1 bg-black/60 text-indigo-300 text-sm font-bold px-3 py-1 rounded-full border border-white/10"><svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>${anime.score ?? "N/A"}</span>`;
+  const epsBadge = anime.episodes ? `<span class="bg-black/60 text-slate-300 text-sm font-medium px-3 py-1 rounded-full border border-white/10">${anime.episodes} Episodes</span>` : '';
 
-  // 📱 Mobile: show image first
-  if (isMobile) {
-    content += `
-      <img src="${anime.images.jpg.image_url}" alt="${anime.title}" 
-        class="w-full max-w-2xl mx-auto object-contain h-72 rounded-md" />
-    `;
-  } else {
-    //  Desktop: show trailer first
-    content += anime.trailer?.embed_url
-      ? `<iframe src="${anime.trailer.embed_url}" 
-          class="w-full aspect-video rounded-md" 
-          frameborder="0" allowfullscreen></iframe>`
-      : `<p class="text-sm text-slate-400 text-center">🎬 No trailer available 😢</p>`;
-  }
-
-  //  Details
+  // Left column: Poster
   content += `
-    <h2 class="text-3xl md:text-4xl font-bold font-heading text-slate-100">${
-      anime.title_english || anime.title
-    }</h2>
-    <p class="text-slate-300 leading-relaxed text-lg">${anime.synopsis}</p>
-    <p><strong>Episodes:</strong> ${anime.episodes ?? "?"}</p>
-    <p><strong>Rating:</strong> ${anime.score ?? "N/A"}</p>
+    <div class="w-full md:w-1/3 flex-shrink-0">
+      <img src="${anime.images.jpg.image_url}" alt="${title}" class="w-full h-auto rounded-2xl shadow-xl border border-white/10">
+      <div class="mt-6">
+        <h3 class="text-lg font-semibold font-heading mb-3 text-slate-100 border-b border-white/10 pb-2">Where to Watch</h3>
+        <ul class="space-y-2">
+          <li><a href="https://crunchyroll.com" target="_blank" class="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors bg-white/5 p-2 rounded-lg hover:bg-white/10"><span class="text-xl">📺</span> Crunchyroll</a></li>
+          <li><a href="https://animepahe.ru" target="_blank" class="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors bg-white/5 p-2 rounded-lg hover:bg-white/10"><span class="text-xl">🎬</span> AnimePahe</a></li>
+        </ul>
+      </div>
+    </div>
   `;
 
-  //  On mobile, show trailer below
-  if (isMobile && anime.trailer?.embed_url) {
-    content += `
-      <div>
-        <h3 class="text-slate-100 font-semibold font-heading mt-6 mb-2">🎬 Trailer:</h3>
-        <iframe src="${anime.trailer.embed_url}" 
-          class="w-full aspect-video rounded-md" 
-          frameborder="0" allowfullscreen></iframe>
-      </div>
-    `;
-  }
-
-  // 🌐 Streaming platforms
+  // Right column: Details and Trailer
   content += `
-    <div class="pt-4">
-      <h3 class="text-lg font-semibold font-heading mb-2 text-slate-100">🌐 Stream on:</h3>
-      <ul class="list-disc pl-6 text-slate-400">
-        <li><a href="https://crunchyroll.com" target="_blank" class="text-indigo-400 hover:text-indigo-300 hover:underline">Crunchyroll</a></li>
-        <li><a href="https://animepahe.ru" target="_blank" class="text-indigo-400 hover:text-indigo-300 hover:underline">AnimePahe</a></li>
-        <li><a href="https://gogoanime.ai" target="_blank" class="text-indigo-400 hover:text-indigo-300 hover:underline">Gogoanime</a></li>
-      </ul>
+    <div class="w-full md:w-2/3 flex flex-col space-y-6">
+      <div>
+        <h2 class="text-3xl md:text-5xl font-bold font-heading text-white tracking-tight mb-4">${title}</h2>
+        <div class="flex flex-wrap gap-3 mb-6">
+          ${ratingBadge}
+          ${epsBadge}
+        </div>
+        <div class="bg-black/20 p-5 rounded-2xl border border-white/5">
+          <h3 class="text-slate-300 font-semibold mb-2 font-heading uppercase tracking-wider text-sm">Synopsis</h3>
+          <p class="text-slate-300 leading-relaxed text-base">${anime.synopsis}</p>
+        </div>
+      </div>
+
+      ${anime.trailer?.embed_url ? `
+      <div class="mt-auto pt-6 border-t border-white/10">
+        <h3 class="text-xl font-semibold font-heading mb-4 text-slate-100 flex items-center gap-2"><span class="text-red-500">▶</span> Official Trailer</h3>
+        <div class="rounded-xl overflow-hidden shadow-2xl border border-white/10 aspect-video">
+          <iframe src="${anime.trailer.embed_url}" class="w-full h-full" frameborder="0" allowfullscreen></iframe>
+        </div>
+      </div>
+      ` : ''}
     </div>
   `;
 
   card.innerHTML = content;
+  wrapper.appendChild(backdrop);
+  wrapper.appendChild(card);
+
   resultsDiv.appendChild(backBtn);
-  resultsDiv.appendChild(card);
+  resultsDiv.appendChild(wrapper);
 }
